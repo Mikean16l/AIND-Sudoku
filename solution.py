@@ -35,9 +35,9 @@ def naked_twins(values):
         peers2 = set(peers[box2])
         peers_int = peers1 & peers2
         for peer_box in peers_int:
-            if len(values[peer_box])>=2:
-                for digit in values[box1]:
-                    values = assign_value(values, peer_box, str(values[peer_box]).replace(digit,''))
+            
+            for digit in values[box1]:
+                values = assign_value(values, peer_box, str(values[peer_box]).replace(digit,''))
     return values
 
 
@@ -99,10 +99,11 @@ def eliminate(values):
     Returns:
         Resulting Sudoku in dictionary form after eliminating values.
     """
-    for i in boxes:
-        if len(values[i]) == 1:
-            for j in peers[i]:
-                values[j] = set(values[j])-set(values[i])
+    solved_values = [box for box in values.keys() if len(values[box]) == 1]
+    for box in solved_values:
+        digit = values[box]
+        for peer in peers[box]:
+            values[peer] = values[peer].replace(digit,'')
     return values
 
 def only_choice(values):
@@ -114,17 +115,11 @@ def only_choice(values):
     Input: Sudoku in dictionary form.
     Output: Resulting Sudoku in dictionary form after filling in only choices.
     """
-    for i in unitlist:
-        for j in '123456789':
-            times = 0
-            flag = ''
-            for k in i:
-                if((set(values[k]) - set(j)) != set(values[k])):
-                    flag = k
-                    times = times + 1
-                    if(times > 1): break
-            if(times == 1):
-                values[flag] = j
+    for unit in unitlist:
+        for digit in '123456789':
+            dplaces = [box for box in unit if digit in values[box]]
+            if len(dplaces) == 1:
+                values[dplaces[0]] = digit
     return values
 
 def reduce_puzzle(values):
